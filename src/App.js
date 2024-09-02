@@ -1,23 +1,41 @@
-import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 
 function App() {
+  const [users, setUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('https://api.github.com/users')
+      .then(response => response.json())
+      .then(data => {
+        setUsers(data);
+        setIsLoading(false);
+      })
+      .catch(error => {
+        console.error('Error fetching data: ', error);
+        setIsLoading(false);
+      });
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>GitHub Users</h1>
+      {isLoading ? (
+        <p>Loading...</p>
+      ) : (
+        <div className="user-list">
+          {users.map(user => (
+            <div key={user.id} className="user-card">
+              <img src={user.avatar_url} alt={user.login} className="avatar" />
+              <h2>{user.login}</h2>
+              <a href={user.html_url} target="_blank" rel="noopener noreferrer">
+                View Profile
+              </a>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
